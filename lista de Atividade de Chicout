@@ -1,0 +1,1196 @@
+Luiz André Bouças da Silva Moreira
+
+1.
+A.#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
+
+#define MAX 100
+
+typedef struct {
+    int data[MAX];
+    int size;
+} Lista;
+[15:23, 12/3/2024] 𝕷𝖚𝖎𝖟: void copyList(Lista *L1, Lista *L2) {
+    L2->size = L1->size;
+    memcpy(L2->data, L1->data, L1->size * sizeof(int));
+} 
+B.bool isOrdered(Lista *L1) {
+    if (L1->size <= 1) return true;
+
+    bool crescente = true, decrescente = true;
+    for (int i = 1; i < L1->size; i++) {
+        if (L1->data[i] < L1->data[i - 1]) crescente = false;
+        if (L1->data[i] > L1->data[i - 1]) decrescente = false;
+    }
+
+    return crescente || decrescente;
+}
+C.void copyUnique(Lista *L1, Lista *L2) {
+    L2->size = 0;
+    for (int i = 0; i < L1->size; i++) {
+        bool found = false;
+        for (int j = 0; j < L2->size; j++) {
+            if (L2->data[j] == L1->data[i]) {
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            L2->data[L2->size++] = L1->data[i];
+        }
+    }
+}
+D.void invertList(Lista *L1, Lista *L2) {
+    L2->size = L1->size;
+    for (int i = 0; i < L1->size; i++) {
+        L2->data[i] = L1->data[L1->size - 1 - i];
+    }
+}
+E.void invertInPlace(Lista *L1) {
+    for (int i = 0; i < L1->size / 2; i++) {
+        int temp = L1->data[i];
+        L1->data[i] = L1->data[L1->size - 1 - i];
+        L1->data[L1->size - 1 - i] = temp;
+    }
+}
+F.void mergeLists(Lista *L1, Lista *L2, Lista *L3) {
+    int i = 0, j = 0, k = 0;
+    L3->size = 0;
+
+    while (i < L1->size && j < L2->size) {
+        if (L1->data[i] < L2->data[j])
+            L3->data[k++] = L1->data[i++];
+        else
+            L3->data[k++] = L2->data[j++];
+    }
+    while (i < L1->size) L3->data[k++] = L1->data[i++];
+    while (j < L2->size) L3->data[k++] = L2->data[j++];
+
+    L3->size = k;
+}
+G.typedef struct {
+    int elem;
+    int count;
+} ElementCount;
+
+void countOccurrences(Lista *L1, ElementCount L2[], int *sizeL2) {
+    *sizeL2 = 0;
+    for (int i = 0; i < L1->size; i++) {
+        bool found = false;
+        for (int j = 0; j < *sizeL2; j++) {
+            if (L2[j].elem == L1->data[i]) {
+                L2[j].count++;
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            L2[*sizeL2].elem = L1->data[i];
+            L2[*sizeL2].count = 1;
+            (*sizeL2)++;
+        }
+    }
+}
+H.void removeElement(Lista *L1, int elem) {
+    int k = 0;
+    for (int i = 0; i < L1->size; i++) {
+        if (L1->data[i] != elem) {
+            L1->data[k++] = L1->data[i];
+        }
+    }
+    L1->size = k;
+}
+I.void findMinMaxOccurrences(Lista *L1, int *minElem, int *minCount, int *maxElem, int *maxCount) {
+    ElementCount counts[MAX];
+    int sizeL2 = 0;
+    countOccurrences(L1, counts, &sizeL2);
+
+    *minCount = counts[0].count;
+    *maxCount = counts[0].count;
+    *minElem = counts[0].elem;
+    *maxElem = counts[0].elem;
+
+    for (int i = 1; i < sizeL2; i++) {
+        if (counts[i].count < *minCount) {
+            *minCount = counts[i].count;
+            *minElem = counts[i].elem;
+        }
+        if (counts[i].count > *maxCount) {
+            *maxCount = counts[i].count;
+            *maxElem = counts[i].elem;
+        }
+    }
+}
+
+
+2.
+#include <stdio.h>
+#define TAM 50
+
+// Estrutura da lista estática
+typedef struct {
+    int elementos[TAM];
+    int tamanho; // Indica o número de elementos atualmente na lista
+} Lista;
+
+// Inicializa a lista
+void inicializarLista(Lista *lista) {
+    lista->tamanho = 0;
+}
+
+// Insere um elemento mantendo a ordem crescente
+void inserirCrescente(Lista *lista, int x) {
+    if (lista->tamanho == TAM) {
+        printf("Erro: Lista cheia.\n");
+        return;
+    }
+
+    int i, pos = 0;
+
+    // Encontra a posição para inserir o elemento
+    while (pos < lista->tamanho && lista->elementos[pos] < x) {
+        pos++;
+    }
+
+    // Move os elementos para abrir espaço
+    for (i = lista->tamanho; i > pos; i--) {
+        lista->elementos[i] = lista->elementos[i - 1];
+    }
+
+    // Insere o novo elemento
+    lista->elementos[pos] = x;
+    lista->tamanho++;
+}
+
+// Insere um elemento mantendo a ordem decrescente
+void inserirDecrescente(Lista *lista, int x) {
+    if (lista->tamanho == TAM) {
+        printf("Erro: Lista cheia.\n");
+        return;
+    }
+
+    int i, pos = 0;
+
+    // Encontra a posição para inserir o elemento
+    while (pos < lista->tamanho && lista->elementos[pos] > x) {
+        pos++;
+    }
+
+    // Move os elementos para abrir espaço
+    for (i = lista->tamanho; i > pos; i--) {
+        lista->elementos[i] = lista->elementos[i - 1];
+    }
+
+    // Insere o novo elemento
+    lista->elementos[pos] = x;
+    lista->tamanho++;
+}
+
+// Exibe os elementos da lista
+void exibirLista(Lista *lista) {
+    for (int i = 0; i < lista->tamanho; i++) {
+        printf("%d ", lista->elementos[i]);
+    }
+    printf("\n");
+}
+
+// Função principal para testes
+int main() {
+    Lista lista;
+
+    inicializarLista(&lista);
+
+    // Teste de inserção em ordem crescente
+    inserirCrescente(&lista, 5);
+    inserirCrescente(&lista, 3);
+    inserirCrescente(&lista, 8);
+    inserirCrescente(&lista, 1);
+
+    printf("Lista em ordem crescente: ");
+    exibirLista(&lista);
+
+    inicializarLista(&lista); // Reinicializa para novo teste
+
+    // Teste de inserção em ordem decrescente
+    inserirDecrescente(&lista, 5);
+    inserirDecrescente(&lista, 3);
+    inserirDecrescente(&lista, 8);
+    inserirDecrescente(&lista, 1);
+
+    printf("Lista em ordem decrescente: ");
+    exibirLista(&lista);
+
+    return 0;
+}
+
+3.
+#include <stdio.h>
+#include <string.h>
+#define TAM 20
+
+// Estrutura do produto
+typedef struct {
+    char nome[80];
+    float preco;
+} PROD;
+
+// Função para ler os dados de um produto
+void lerProduto(PROD *produto) {
+    printf("Digite o nome do produto: ");
+    scanf(" %[^\n]", produto->nome);
+    printf("Digite o preço do produto: ");
+    scanf("%f", &produto->preco);
+}
+
+// Função para imprimir os dados de um produto
+void imprimirProduto(PROD produto) {
+    printf("Produto: %-20s | Preço: %.2f\n", produto.nome, produto.preco);
+}
+
+// Função para inflacionar o preço de um produto
+void inflacionar(PROD *produto) {
+    if (produto->preco < 100) {
+        produto->preco *= 1.05; // Aumenta o preço em 5%
+    }
+}
+
+// Função para ordenar os produtos por nome (ordem alfabética)
+void ordenarPorNome(PROD produtos[], int tamanho) {
+    PROD temp;
+    for (int i = 0; i < tamanho - 1; i++) {
+        for (int j = i + 1; j < tamanho; j++) {
+            if (strcmp(produtos[i].nome, produtos[j].nome) > 0) {
+                temp = produtos[i];
+                produtos[i] = produtos[j];
+                produtos[j] = temp;
+            }
+        }
+    }
+}
+
+// Função principal
+int main() {
+    PROD produtos[TAM];
+
+    // Lê os dados dos produtos
+    for (int i = 0; i < TAM; i++) {
+        printf("\nProduto %d:\n", i + 1);
+        lerProduto(&produtos[i]);
+    }
+
+    // Ordena os produtos por nome
+    ordenarPorNome(produtos, TAM);
+
+    // Aplica a inflação aos produtos com preço < 100
+    for (int i = 0; i < TAM; i++) {
+        inflacionar(&produtos[i]);
+    }
+
+    // Imprime a lista de produtos e preços
+    printf("\nLista de Produtos Ordenada e Inflacionada:\n");
+    for (int i = 0; i < TAM; i++) {
+        imprimirProduto(produtos[i]);
+    }
+
+    return 0;
+}
+
+5.
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+typedef struct {
+    char **list;   // Ponteiro para armazenar os elementos (strings)
+    int capacity;  // Capacidade total da lista
+    int size;      // Número de elementos na lista
+} DynamicStringList;
+
+// Função para inicializar a lista dinâmica
+void initializeList(DynamicStringList *list) {
+    list->capacity = 2; // Capacidade inicial
+    list->size = 0;
+    list->list = (char **)malloc(list->capacity * sizeof(char *));
+}
+
+// Função para redimensionar a lista
+void resizeList(DynamicStringList *list) {
+    list->capacity *= 2;
+    list->list = (char **)realloc(list->list, list->capacity * sizeof(char *));
+}
+
+// Função para inserir uma string na lista
+void insertString(DynamicStringList *list, const char *string) {
+    if (list->size == list->capacity) {
+        resizeList(list);
+    }
+    list->list[list->size] = (char *)malloc((strlen(string) + 1) * sizeof(char));
+    strcpy(list->list[list->size], string);
+    list->size++;
+}
+
+// Função para remover uma string pelo índice
+void removeString(DynamicStringList *list, int index) {
+    if (index < 0 || index >= list->size) {
+        printf("Índice inválido!\n");
+        return;
+    }
+    free(list->list[index]); // Libera a memória da string removida
+    for (int i = index; i < list->size - 1; i++) {
+        list->list[i] = list->list[i + 1];
+    }
+    list->size--;
+}
+
+// Função para buscar uma string na lista
+int searchString(DynamicStringList *list, const char *string) {
+    for (int i = 0; i < list->size; i++) {
+        if (strcmp(list->list[i], string) == 0) {
+            return i; // Retorna o índice da string
+        }
+    }
+    return -1; // Não encontrada
+}
+
+// Função para verificar se a lista está vazia
+int isEmpty(DynamicStringList *list) {
+    return list->size == 0;
+}
+
+// Função para obter o tamanho da lista
+int getSize(DynamicStringList *list) {
+    return list->size;
+}
+
+// Função para calcular a perda de memória
+int memoryLoss(DynamicStringList *list) {
+    return list->capacity - list->size;
+}
+
+// Função para liberar toda a memória da lista
+void freeList(DynamicStringList *list) {
+    for (int i = 0; i < list->size; i++) {
+        free(list->list[i]);
+    }
+    free(list->list);
+}
+
+int main() {
+    DynamicStringList list;
+    initializeList(&list);
+
+    insertString(&list, "Hello");
+    insertString(&list, "World");
+    insertString(&list, "C Programming");
+
+    printf("Tamanho da lista: %d\n", getSize(&list));
+    printf("Perda de memória: %d\n", memoryLoss(&list));
+
+    printf("Buscando 'World': Índice %d\n", searchString(&list, "World"));
+    printf("Removendo 'World'...\n");
+    removeString(&list, 1);
+
+    printf("Tamanho da lista: %d\n", getSize(&list));
+    printf("Perda de memória: %d\n", memoryLoss(&list));
+
+    if (isEmpty(&list)) {
+        printf("A lista está vazia.\n");
+    } else {
+        printf("A lista não está vazia.\n");
+    }
+
+    freeList(&list);
+    return 0;
+}
+
+6.
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+// Definição do tipo Contato
+typedef struct {
+    char nome[100];
+    char telefone[20];
+    char email[100];
+} Contato;
+
+// Estrutura para gerenciar a lista de contatos
+typedef struct {
+    Contato *contatos;  // Array dinâmico de contatos
+    int capacidade;     // Capacidade máxima
+    int tamanho;        // Quantidade atual de contatos
+} ListaContatos;
+
+// Função para inicializar a lista de contatos
+void inicializarLista(ListaContatos *lista) {
+    lista->capacidade = 2; // Capacidade inicial
+    lista->tamanho = 0;
+    lista->contatos = (Contato *)malloc(lista->capacidade * sizeof(Contato));
+}
+
+// Função para redimensionar a lista de contatos
+void redimensionarLista(ListaContatos *lista) {
+    lista->capacidade *= 2;
+    lista->contatos = (Contato *)realloc(lista->contatos, lista->capacidade * sizeof(Contato));
+}
+
+// Função para inserir um contato
+void inserirContato(ListaContatos *lista, char *nome, char *telefone, char *email) {
+    if (lista->tamanho == lista->capacidade) {
+        redimensionarLista(lista);
+    }
+    strcpy(lista->contatos[lista->tamanho].nome, nome);
+    strcpy(lista->contatos[lista->tamanho].telefone, telefone);
+    strcpy(lista->contatos[lista->tamanho].email, email);
+    lista->tamanho++;
+}
+
+// Função para remover um contato pelo índice
+void removerContato(ListaContatos *lista, int indice) {
+    if (indice < 0 || indice >= lista->tamanho) {
+        printf("Índice inválido!\n");
+        return;
+    }
+    for (int i = indice; i < lista->tamanho - 1; i++) {
+        lista->contatos[i] = lista->contatos[i + 1];
+    }
+    lista->tamanho--;
+}
+
+// Função para buscar um contato pelo nome
+int buscarContato(ListaContatos *lista, char *nome) {
+    for (int i = 0; i < lista->tamanho; i++) {
+        if (strcmp(lista->contatos[i].nome, nome) == 0) {
+            return i; // Retorna o índice do contato
+        }
+    }
+    return -1; // Não encontrado
+}
+
+// Funções para atualizar campos do contato
+void atualizarNome(ListaContatos *lista, int indice, char *novoNome) {
+    if (indice >= 0 && indice < lista->tamanho) {
+        strcpy(lista->contatos[indice].nome, novoNome);
+    }
+}
+
+void atualizarTelefone(ListaContatos *lista, int indice, char *novoTelefone) {
+    if (indice >= 0 && indice < lista->tamanho) {
+        strcpy(lista->contatos[indice].telefone, novoTelefone);
+    }
+}
+
+void atualizarEmail(ListaContatos *lista, int indice, char *novoEmail) {
+    if (indice >= 0 && indice < lista->tamanho) {
+        strcpy(lista->contatos[indice].email, novoEmail);
+    }
+}
+
+// Função para exibir todos os contatos
+void listarContatos(ListaContatos *lista) {
+    printf("\nLista de Contatos:\n");
+    for (int i = 0; i < lista->tamanho; i++) {
+        printf("%d. Nome: %s, Telefone: %s, Email: %s\n", 
+               i + 1, lista->contatos[i].nome, lista->contatos[i].telefone, lista->contatos[i].email);
+    }
+}
+
+// Função para liberar a memória da lista
+void liberarLista(ListaContatos *lista) {
+    free(lista->contatos);
+}
+
+// Função principal com interface de texto
+int main() {
+    ListaContatos lista;
+    inicializarLista(&lista);
+
+    int opcao, indice;
+    char nome[100], telefone[20], email[100];
+
+    do {
+        printf("\n=== Agenda de Contatos ===\n");
+        printf("1. Inserir contato\n");
+        printf("2. Remover contato\n");
+        printf("3. Buscar contato\n");
+        printf("4. Listar contatos\n");
+        printf("5. Atualizar nome\n");
+        printf("6. Atualizar telefone\n");
+        printf("7. Atualizar email\n");
+        printf("0. Sair\n");
+        printf("Escolha uma opção: ");
+        scanf("%d", &opcao);
+
+        switch (opcao) {
+            case 1:
+                printf("Nome: ");
+                scanf(" %[^\n]", nome);
+                printf("Telefone: ");
+                scanf(" %[^\n]", telefone);
+                printf("Email: ");
+                scanf(" %[^\n]", email);
+                inserirContato(&lista, nome, telefone, email);
+                break;
+            case 2:
+                printf("Índice do contato a remover: ");
+                scanf("%d", &indice);
+                removerContato(&lista, indice - 1);
+                break;
+            case 3:
+                printf("Nome do contato para buscar: ");
+                scanf(" %[^\n]", nome);
+                indice = buscarContato(&lista, nome);
+                if (indice >= 0) {
+                    printf("Contato encontrado: Nome: %s, Telefone: %s, Email: %s\n",
+                           lista.contatos[indice].nome,
+                           lista.contatos[indice].telefone,
+                           lista.contatos[indice].email);
+                } else {
+                    printf("Contato não encontrado.\n");
+                }
+                break;
+            case 4:
+                listarContatos(&lista);
+                break;
+            case 5:
+                printf("Índice do contato a atualizar: ");
+                scanf("%d", &indice);
+                printf("Novo nome: ");
+                scanf(" %[^\n]", nome);
+                atualizarNome(&lista, indice - 1, nome);
+                break;
+            case 6:
+                printf("Índice do contato a atualizar: ");
+                scanf("%d", &indice);
+                printf("Novo telefone: ");
+                scanf(" %[^\n]", telefone);
+                atualizarTelefone(&lista, indice - 1, telefone);
+                break;
+            case 7:
+                printf("Índice do contato a atualizar: ");
+                scanf("%d", &indice);
+                printf("Novo email: ");
+                scanf(" %[^\n]", email);
+                atualizarEmail(&lista, indice - 1, email);
+                break;
+            case 0:
+                printf("Saindo...\n");
+                break;
+            default:
+                printf("Opção inválida.\n");
+        }
+    } while (opcao != 0);
+
+    liberarLista(&lista);
+    return 0;
+}
+
+7.
+#include <stdio.h>
+#include <stdlib.h>
+
+// Definição da estrutura de um nó da lista encadeada
+typedef struct Node {
+    int data;
+    struct Node *next;
+} Node;
+
+// Função para criar um novo nó
+Node* criarNo(int data) {
+    Node *novoNo = (Node *)malloc(sizeof(Node));
+    novoNo->data = data;
+    novoNo->next = NULL;
+    return novoNo;
+}
+
+// Função para verificar se a lista está em ordem crescente
+int estaEmOrdemCrescente(Node *head) {
+    if (head == NULL || head->next == NULL) {
+        // Lista vazia ou com apenas um elemento está automaticamente em ordem
+        return 1;
+    }
+
+    Node *atual = head;
+    while (atual->next != NULL) {
+        if (atual->data > atual->next->data) {
+            return 0; // Não está em ordem crescente
+        }
+        atual = atual->next;
+    }
+    return 1; // Está em ordem crescente
+}
+
+// Função para adicionar um nó ao final da lista
+void adicionarNo(Node **head, int data) {
+    Node *novoNo = criarNo(data);
+    if (*head == NULL) {
+        *head = novoNo;
+        return;
+    }
+
+    Node *temp = *head;
+    while (temp->next != NULL) {
+        temp = temp->next;
+    }
+    temp->next = novoNo;
+}
+
+// Função para liberar a memória da lista
+void liberarLista(Node *head) {
+    Node *temp;
+    while (head != NULL) {
+        temp = head;
+        head = head->next;
+        free(temp);
+    }
+}
+
+// Função principal para testar
+int main() {
+    Node *head = NULL;
+
+    // Adicionando elementos à lista
+    adicionarNo(&head, 1);
+    adicionarNo(&head, 2);
+    adicionarNo(&head, 3);
+    adicionarNo(&head, 5);
+
+    // Verificando se a lista está em ordem crescente
+    if (estaEmOrdemCrescente(head)) {
+        printf("A lista está em ordem crescente.\n");
+    } else {
+        printf("A lista não está em ordem crescente.\n");
+    }
+
+    // Liberando a memória
+    liberarLista(head);
+
+    return 0;
+}
+
+8.
+#include <stdio.h>
+#include <stdlib.h>
+
+// Estrutura de um nó da lista encadeada
+typedef struct Node {
+    int data;
+    struct Node *next;
+} Node;
+
+// Função para criar um novo nó
+Node* criarNo(int data) {
+    Node *novoNo = (Node *)malloc(sizeof(Node));
+    novoNo->data = data;
+    novoNo->next = NULL;
+    return novoNo;
+}
+
+// Função para adicionar um nó ao final da lista
+void adicionarNo(Node **head, int data) {
+    Node *novoNo = criarNo(data);
+    if (*head == NULL) {
+        *head = novoNo;
+        return;
+    }
+    Node *temp = *head;
+    while (temp->next != NULL) {
+        temp = temp->next;
+    }
+    temp->next = novoNo;
+}
+
+// Função para liberar a memória da lista
+void liberarLista(Node *head) {
+    Node *temp;
+    while (head != NULL) {
+        temp = head;
+        head = head->next;
+        free(temp);
+    }
+}
+int buscarIterativo(Node *head, int valor) {
+    while (head != NULL) {
+        if (head->data == valor) {
+            return 1; // Valor encontrado
+        }
+        if (head->data > valor) {
+            return 0; // Valor não está na lista, já que ela é crescente
+        }
+        head = head->next;
+    }
+    return 0; // Valor não encontrado
+}
+int buscarRecursivo(Node *head, int valor) {
+    if (head == NULL) {
+        return 0; // Lista vazia ou fim da lista, valor não encontrado
+    }
+    if (head->data == valor) {
+        return 1; // Valor encontrado
+    }
+    if (head->data > valor) {
+        return 0; // Valor não está na lista, já que ela é crescente
+    }
+    return buscarRecursivo(head->next, valor);
+}
+
+9.
+#include <stdio.h>
+#include <limits.h> // Para INT_MAX
+
+// Função auxiliar para a recursão
+int encontrar_minimo_recursivo_aux(int matriz[][3], int linhas, int colunas, int i, int j, int minimo) {
+    if (i == linhas) return minimo;  // Se acabou a matriz, retorna o mínimo encontrado
+
+    if (j == colunas) {
+        // Se chegou ao final da coluna, vai para a próxima linha
+        return encontrar_minimo_recursivo_aux(matriz, linhas, colunas, i + 1, 0, minimo);
+    }
+
+    // Verifica se o valor atual é menor que o mínimo
+    if (matriz[i][j] < minimo) {
+        minimo = matriz[i][j];
+    }
+
+    // Chama a recursão para a próxima célula
+    return encontrar_minimo_recursivo_aux(matriz, linhas, colunas, i, j + 1, minimo);
+}
+
+int encontrar_minimo_recursivo(int matriz[][3], int linhas, int colunas) {
+    return encontrar_minimo_recursivo_aux(matriz, linhas, colunas, 0, 0, INT_MAX);
+}
+
+int main() {
+    int matriz[3][3] = {
+        {5, 3, 7},
+        {2, 8, 1},
+        {9, 4, 6}
+    };
+    printf("O mínimo (recursivo) é: %d\n", encontrar_minimo_recursivo(matriz, 3, 3));
+    return 0;
+}
+#include <stdio.h>
+#include <limits.h> // Para INT_MAX
+
+int encontrar_minimo_iterativo(int matriz[][3], int linhas, int colunas) {
+    int minimo = INT_MAX;  // Inicializa com o valor máximo possível para inteiros
+    for (int i = 0; i < linhas; i++) {
+        for (int j = 0; j < colunas; j++) {
+            if (matriz[i][j] < minimo) {
+                minimo = matriz[i][j];
+            }
+        }
+    }
+    return minimo;
+}
+
+int main() {
+    int matriz[3][3] = {
+        {5, 3, 7},
+        {2, 8, 1},
+        {9, 4, 6}
+    };
+    printf("O mínimo (iterativo) é: %d\n", encontrar_minimo_iterativo(matriz, 3, 3));
+    return 0;
+}
+
+10.
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct Nodo {
+    int valor;
+    struct Nodo *prox;
+} Nodo;
+
+// Função que verifica se duas listas encadeadas são iguais
+int sao_iguais_iterativo(Nodo *lista1, Nodo *lista2) {
+    // Percorre ambas as listas ao mesmo tempo
+    while (lista1 != NULL && lista2 != NULL) {
+        if (lista1->valor != lista2->valor) {
+            return 0;  // Retorna 0 se os valores forem diferentes
+        }
+        lista1 = lista1->prox;
+        lista2 = lista2->prox;
+    }
+
+    // Se uma lista terminou antes da outra, elas são diferentes
+    return lista1 == NULL && lista2 == NULL;
+}
+
+// Função auxiliar para criar um nó
+Nodo* criar_nodo(int valor) {
+    Nodo novo = (Nodo) malloc(sizeof(Nodo));
+    novo->valor = valor;
+    novo->prox = NULL;
+    return novo;
+}
+
+// Função principal para testar
+int main() {
+    Nodo *lista1 = criar_nodo(1);
+    lista1->prox = criar_nodo(2);
+    lista1->prox->prox = criar_nodo(3);
+
+    Nodo *lista2 = criar_nodo(1);
+    lista2->prox = criar_nodo(2);
+    lista2->prox->prox = criar_nodo(3);
+
+    if (sao_iguais_iterativo(lista1, lista2)) {
+        printf("As listas são iguais (iterativo).\n");
+    } else {
+        printf("As listas são diferentes (iterativo).\n");
+    }
+
+    return 0;
+}
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct Nodo {
+    int valor;
+    struct Nodo *prox;
+} Nodo;
+
+// Função recursiva para verificar se duas listas encadeadas são iguais
+int sao_iguais_recursivo(Nodo *lista1, Nodo *lista2) {
+    // Caso base: ambas as listas terminaram
+    if (lista1 == NULL && lista2 == NULL) {
+        return 1;  // As listas são iguais
+    }
+    // Se apenas uma lista terminou ou os valores são diferentes, as listas são diferentes
+    if (lista1 == NULL || lista2 == NULL || lista1->valor != lista2->valor) {
+        return 0;
+    }
+    // Chama recursivamente para os próximos nós
+    return sao_iguais_recursivo(lista1->prox, lista2->prox);
+}
+
+// Função auxiliar para criar um nó
+Nodo* criar_nodo(int valor) {
+    Nodo novo = (Nodo) malloc(sizeof(Nodo));
+    novo->valor = valor;
+    novo->prox = NULL;
+    return novo;
+}
+
+// Função principal para testar
+int main() {
+    Nodo *lista1 = criar_nodo(1);
+    lista1->prox = criar_nodo(2);
+    lista1->prox->prox = criar_nodo(3);
+
+    Nodo *lista2 = criar_nodo(1);
+    lista2->prox = criar_nodo(2);
+    lista2->prox->prox = criar_nodo(3);
+
+    if (sao_iguais_recursivo(lista1, lista2)) {
+        printf("As listas são iguais (recursivo).\n");
+    } else {
+        printf("As listas são diferentes (recursivo).\n");
+    }
+
+    return 0;
+}
+
+11.
+#include <stdio.h>
+#include <stdlib.h>
+
+// Definição do nó da lista encadeada
+struct No {
+    int dado;
+    struct No* proximo;
+};
+
+// Função para encontrar o ponto médio
+struct No* ponto_medio(struct No* lista) {
+    // Se a lista estiver vazia ou tiver um único elemento
+    if (lista == NULL || lista->proximo == NULL) {
+        return lista;
+    }
+
+    // Inicializando os ponteiros
+    struct No* lento = lista;
+    struct No* rapido = lista;
+
+    // Percorrendo a lista com os dois ponteiros
+    while (rapido != NULL && rapido->proximo != NULL) {
+        lento = lento->proximo;         // Ponteiro lento anda uma posição
+        rapido = rapido->proximo->proximo; // Ponteiro rápido anda duas posições
+    }
+
+    // Quando o ponteiro rápido chegar ao final, o ponteiro lento estará no meio
+    return lento;
+}
+
+// Função para criar um novo nó
+struct No* novo_no(int dado) {
+    struct No* novo = (struct No*)malloc(sizeof(struct No));
+    novo->dado = dado;
+    novo->proximo = NULL;
+    return novo;
+}
+
+// Função para exibir a lista
+void exibir_lista(struct No* lista) {
+    while (lista != NULL) {
+        printf("%d -> ", lista->dado);
+        lista = lista->proximo;
+    }
+    printf("NULL\n");
+}
+
+int main() {
+    // Criando uma lista encadeada: 1 -> 2 -> 3 -> 4 -> 5
+    struct No* inicio = novo_no(1);
+    inicio->proximo = novo_no(2);
+    inicio->proximo->proximo = novo_no(3);
+    inicio->proximo->proximo->proximo = novo_no(4);
+    inicio->proximo->proximo->proximo->proximo = novo_no(5);
+
+    // Exibindo a lista
+    printf("Lista encadeada: ");
+    exibir_lista(inicio);
+
+    // Encontrando o ponto médio
+    struct No* meio = ponto_medio(inicio);
+    printf("Ponto médio da lista: %d\n", meio->dado); // Saída esperada: 3
+
+    return 0;
+}
+
+12.
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+
+#define MAX_TAM_TEXTO 1000
+
+// Função para verificar se um caractere é uma letra
+int eh_letra(char c) {
+    return isalpha(c);
+}
+
+// Função para limpar e separar as palavras de uma string
+void separar_palavras(const char* texto, char palavras[][MAX_TAM_TEXTO], int* num_palavras) {
+    int i = 0, j = 0, k = 0;
+    while (texto[i] != '\0') {
+        if (eh_letra(texto[i])) {
+            palavras[k][j++] = tolower(texto[i]);  // Coloca a letra minúscula
+        } else if (j > 0) {
+            palavras[k][j] = '\0';  // Termina a palavra
+            k++;
+            j = 0;
+        }
+        i++;
+    }
+    if (j > 0) {
+        palavras[k][j] = '\0';  // Termina a última palavra
+        k++;
+    }
+    *num_palavras = k;
+}
+
+// Função para contar o número de palavras
+int contar_palavras(const char palavras[][MAX_TAM_TEXTO], int num_palavras) {
+    return num_palavras;
+}
+
+// Função para contar as palavras distintas
+int contar_palavras_distintas(const char palavras[][MAX_TAM_TEXTO], int num_palavras) {
+    int contador = 0;
+    int encontrado;
+    
+    for (int i = 0; i < num_palavras; i++) {
+        encontrado = 0;
+        for (int j = 0; j < i; j++) {
+            if (strcmp(palavras[i], palavras[j]) == 0) {
+                encontrado = 1;
+                break;
+            }
+        }
+        if (!encontrado) {
+            contador++;
+        }
+    }
+    return contador;
+}
+
+// Função para calcular a média de letras das palavras
+double media_letras(const char palavras[][MAX_TAM_TEXTO], int num_palavras) {
+    int soma = 0;
+    for (int i = 0; i < num_palavras; i++) {
+        soma += strlen(palavras[i]);
+    }
+    return (double)soma / num_palavras;
+}
+
+// Função para encontrar a maior palavra
+void maior_palavra(const char palavras[][MAX_TAM_TEXTO], int num_palavras, char* resultado) {
+    int max_len = 0;
+    for (int i = 0; i < num_palavras; i++) {
+        int len = strlen(palavras[i]);
+        if (len > max_len) {
+            max_len = len;
+            strcpy(resultado, palavras[i]);
+        }
+    }
+}
+
+// Função para encontrar a menor palavra
+void menor_palavra(const char palavras[][MAX_TAM_TEXTO], int num_palavras, char* resultado) {
+    int min_len = MAX_TAM_TEXTO;
+    for (int i = 0; i < num_palavras; i++) {
+        int len = strlen(palavras[i]);
+        if (len < min_len) {
+            min_len = len;
+            strcpy(resultado, palavras[i]);
+        }
+    }
+}
+
+// Função para encontrar a palavra mais frequente
+void mais_frequente(const char palavras[][MAX_TAM_TEXTO], int num_palavras, char* resultado) {
+    int max_count = 0;
+    for (int i = 0; i < num_palavras; i++) {
+        int count = 0;
+        for (int j = 0; j < num_palavras; j++) {
+            if (strcmp(palavras[i], palavras[j]) == 0) {
+                count++;
+            }
+        }
+        if (count > max_count) {
+            max_count = count;
+            strcpy(resultado, palavras[i]);
+        }
+    }
+}
+
+// Função para encontrar a palavra mais rara
+void mais_rara(const char palavras[][MAX_TAM_TEXTO], int num_palavras, char* resultado) {
+    int min_count = num_palavras + 1;
+    for (int i = 0; i < num_palavras; i++) {
+        int count = 0;
+        for (int j = 0; j < num_palavras; j++) {
+            if (strcmp(palavras[i], palavras[j]) == 0) {
+                count++;
+            }
+        }
+        if (count < min_count) {
+            min_count = count;
+            strcpy(resultado, palavras[i]);
+        }
+    }
+}
+
+int main() {
+    char texto[MAX_TAM_TEXTO];
+    char palavras[MAX_TAM_TEXTO][MAX_TAM_TEXTO];
+    int num_palavras = 0;
+    char resultado[MAX_TAM_TEXTO];
+
+    printf("Digite um texto longo: \n");
+    fgets(texto, MAX_TAM_TEXTO, stdin);  // Recebe o texto
+
+    // Separar as palavras do texto
+    separar_palavras(texto, palavras, &num_palavras);
+
+    // Contar o número de palavras
+    printf("Número de palavras: %d\n", contar_palavras(palavras, num_palavras));
+
+    // Contar palavras distintas
+    printf("Número de palavras distintas: %d\n", contar_palavras_distintas(palavras, num_palavras));
+
+    // Calcular a média de letras
+    printf("Média de letras por palavra: %.2f\n", media_letras(palavras, num_palavras));
+
+    // Encontrar a maior palavra
+    maior_palavra(palavras, num_palavras, resultado);
+    printf("Maior palavra: %s\n", resultado);
+
+    // Encontrar a menor palavra
+    menor_palavra(palavras, num_palavras, resultado);
+    printf("Menor palavra: %s\n", resultado);
+
+    // Encontrar a palavra mais frequente
+    mais_frequente(palavras, num_palavras, resultado);
+    printf("Palavra mais frequente: %s\n", resultado);
+
+    // Encontrar a palavra mais rara
+    mais_rara(palavras, num_palavras, resultado);
+    printf("Palavra mais rara: %s\n", resultado);
+
+    return 0;
+}
+
+13.
+#include <stdio.h>
+#include <stdlib.h>
+
+// Estrutura de um nó da árvore binária
+struct Nodo {
+    int valor;
+    struct Nodo* esquerda;
+    struct Nodo* direita;
+};
+
+// Função para criar um novo nó
+struct Nodo* novoNodo(int valor) {
+    struct Nodo* nodo = (struct Nodo*)malloc(sizeof(struct Nodo));
+    nodo->valor = valor;
+    nodo->esquerda = NULL;
+    nodo->direita = NULL;
+    return nodo;
+}
+
+// Função para trocar as subárvores (obter o espelho)
+void espelho(struct Nodo* raiz) {
+    if (raiz == NULL) {
+        return;
+    }
+
+    // Troca as subárvores esquerda e direita
+    struct Nodo* temp = raiz->esquerda;
+    raiz->esquerda = raiz->direita;
+    raiz->direita = temp;
+
+    // Aplica recursivamente para as subárvores
+    espelho(raiz->esquerda);
+    espelho(raiz->direita);
+}
+
+// Função para imprimir a árvore em pré-ordem
+void exibirPreOrdem(struct Nodo* raiz) {
+    if (raiz == NULL) {
+        return;
+    }
+    printf("%d ", raiz->valor);
+    exibirPreOrdem(raiz->esquerda);
+    exibirPreOrdem(raiz->direita);
+}
+
+// Programa principal
+int main() {
+    struct Nodo* raiz = novoNodo(1);
+    raiz->esquerda = novoNodo(2);
+    raiz->direita = novoNodo(3);
+    raiz->esquerda->esquerda = novoNodo(4);
+    raiz->esquerda->direita = novoNodo(5);
+    raiz->direita->esquerda = novoNodo(6);
+    raiz->direita->direita = novoNodo(7);
+
+    printf("Árvore original em pré-ordem:\n");
+    exibirPreOrdem(raiz);
+
+    espelho(raiz);
+
+    printf("\nÁrvore espelhada em pré-ordem:\n");
+    exibirPreOrdem(raiz);
+
+    return 0;
+}
